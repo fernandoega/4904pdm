@@ -14,7 +14,7 @@ st.markdown("Model menggunakan **SVM** + **TF-IDF**, dilatih dari data komentar 
 
 # === Load model dan vectorizer ===
 try:
-    model = joblib.load("svm_model.pkl")
+    model = joblib.load("svm_tiktok_model.pkl")
     vectorizer = joblib.load("tfidf_vectorizer.pkl")
     st.success("✅ Model dan vectorizer berhasil dimuat.")
 except Exception as e:
