@@ -28,8 +28,8 @@ stemmer = StemmerFactory().create_stemmer()
 
 def clean_text(text):
     text = str(text).lower()
-    text = re.sub(r'[^a-zA-Z\\s]', '', text)
-    text = re.sub(r'\\s+', ' ', text).strip()
+    text = re.sub(r'[^a-zA-Z\s]', '', text)  # Fix: \s bukan \\s
+    text = re.sub(r'\s+', ' ', text).strip()
     text = ' '.join([word for word in text.split() if word not in stopwords])
     return stemmer.stem(text)
 
@@ -38,14 +38,17 @@ st.subheader("📝 Uji Komentar Baru")
 user_input = st.text_area("Masukkan komentar untuk dianalisis", height=100)
 
 if st.button("Prediksi Sentimen"):
-    if not user_input:
-        st.warning("Mohon masukkan komentar terlebih dahulu.")
+    if not user_input.strip():
+        st.warning("⚠️ Mohon masukkan komentar terlebih dahulu.")
     else:
         cleaned = clean_text(user_input)
         try:
             vectorized = vectorizer.transform([cleaned])
-            prediction = model.predict(vectorized)[0]
-            label = "👍 Positif" if prediction == 1 else "👎 Negatif"
-            st.success(f"Hasil prediksi: **{label}**")
+            if vectorized.shape[1] != model.n_features_in_:
+                st.error("❌ Jumlah fitur TF-IDF tidak sesuai dengan model. Harap retrain model dengan vectorizer yang sesuai.")
+            else:
+                prediction = model.predict(vectorized)[0]
+                label = "👍 Positif" if prediction == 1 else "👎 Negatif"
+                st.success(f"Hasil prediksi: **{label}**")
         except Exception as e:
-            st.error(f"Terjadi kesalahan saat prediksi: {e}")
+            st.error(f"❌ Terjadi kesalahan saat prediksi: {e}")
